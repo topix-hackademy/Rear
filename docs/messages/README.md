@@ -25,6 +25,7 @@ Both parties must be authenticated to prevent unauthorized access to the resourc
 At it's core, REAR relies on a **Decentralized identifiers (DIDs)** system as a way to provide globally unique identifier to verify the various actors involved in the REAR message exchange and removing the need for a centralized registry.
 Each device in the continuum is represented by a set of attributes, constituting what's called a **Verifiable Credential (VC)**.
 Upon connecting to the continuum, a node must performe the enrolment towards a Trusted Issuer to be included in the DID, receiving as the VC with the attributes disclodesed during the enrolment (see Figure 2).  
+The VC will then be stored in the private wallet of the owner for future use.
 
 ![](/images/REAR_auth.png)
 
@@ -60,7 +61,7 @@ In the following, we outline the fields that can be included in the VC (note tha
 
 The VC contains all the attributes describing a given node, however, not all of them must be provided to the producer when purchasing a given resource.
 In fact, a given provider might require only a subset of them (e.g., only university and department are required).
-To this end, a **Verifiable Presentation (VP)** can be requested to the trusted issuer, including only the subset of requested attributes and preventing information disclosure (see Figure 3).
+To this end, a **Verifiable Presentation (VP)** can be requested through the local privacy and security manager, including only the subset of requested attributes and preventing information disclosure (see Figure 3).
 
 ![](/images/VPresentation.png)
 
@@ -106,9 +107,12 @@ Specifically, the **PURCHASE_FLAVOR** message notifies the intention of the cons
 To do so, the consumer sends the **PURCHASE_FLAVOR** message including the _TransactionID_ (obtained with the **RESERVE_FLAVOR**) and the VP to the provider.
 If authorized, the consumer will then be prompted to a payment service (either external or managed by the provider) and, if successful, a copy of the _Contract_ is returned to the consumer, detailing the purchase and the information required to access the purchased resource (e.g., IP address, API endpoint).
 
-To ensure the contract wasn't changed along the wayand verify that the provider is who it says it is, the contract is signed using a **JSON Web Token (JWT)**.
-Specifically, the contract is first signed by the provider, and then returned to the consumer, that, in turn, can sing it and store in in a DLT.
-AS a result, the contract signed from both parties bond both the consumer and the producer to the agreed upon transaction.
+To ensure the contract hasn't been changed and to verify the provider's identity, the contract is encapsulated within a **JSON Web Token (JWT)** and signed using the DID private key. 
+Specifically, the contract is first signed by the provider using the JWT, then returned to the consumer, who can add their own signature to the JWT. 
+More nested signatures can be added as needed.
+
+Hashes of the contracts can be stored in the **Distributed Ledger Technology (DLT)**, ensuring immutability and traceability. 
+By retrieving the contract's hash from the DLT, it is possible to verify the contract's existence and integrity, providing notary-like effects. The signatures on the JWT can be verified using the public key associated with the DID of the signer, which can be publicly accessed in the DLT. This process bonds both the consumer and the producer to the agreed-upon transaction and ensures the integrity and authenticity of the contract.
 
 ## SUBSCRIBE TO CHANGES
 
